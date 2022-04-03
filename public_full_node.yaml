@@ -1,15 +1,15 @@
 base:
     # for persistence.
-    data_dir: "$DZN/aptos-node/data"
+    data_dir: "$HOME/aptos-node/data"
     role: "full_node"
     waypoint:
         # This is a checkpoint into the blockchain for added security.
-        from_file: "$DZN/aptos-node/config/waypoint.txt"
+        from_file: "/opt/aptos/waypoint.txt"
 
 execution:
     # Path to a genesis transaction. Note, this must be paired with a waypoint. If you update your
     # waypoint without a corresponding genesis, the file location should be an empty path.
-    genesis_file_location: "$DZN/aptos-node/config/genesis.blob"
+    genesis_file_location: "/opt/aptos/genesis.blob"
 
 full_node_networks:
     - network_id: "public"
@@ -18,10 +18,6 @@ full_node_networks:
       # prevent remote, incoming connections.
       listen_address: "/ip4/127.0.0.1/tcp/6180"
       # Define the upstream peers to connect to
-      identity:
-        type: "from_config"
-        key: "key"
-        peer_id: "peer"
       seeds:
         {}
 
