@@ -67,11 +67,24 @@ sudo systemctl restart aptosd
 }
 
 additional () {
-  echo -e "\u001b[32m check the status:\u001b[0m \u001b[41;1mcurl 127.0.0.1:9101/metrics 2> /dev/null | grep "aptos_state_sync_version{type=\"synced\"}"\u001b[0m"
-  echo -e "\u001b[32m Stop the node:\u001b[0m \u001b[41;1msystemctl stop aptosd\u001b[0m"
-  echo -e "\u001b[32m start the node:\u001b[0m \u001b[41;1msystemctl start aptosd\u001b[0m"
-  echo -e "\u001b[32m check the logs:\u001b[0m \u001b[41;1mjournalctl -u aptosd -f -n 100\u001b[0m"
+    echo -e "\u001b[32m check the status:\u001b[0m \u001b[41;1mcurl 127.0.0.1:9101/metrics 2> /dev/null | grep "aptos_state_sync_version{type=\"synced\"}"\u001b[0m"
+    echo -e "\u001b[32m Stop the node:\u001b[0m \u001b[41;1msystemctl stop aptosd\u001b[0m"
+    echo -e "\u001b[32m start the node:\u001b[0m \u001b[41;1msystemctl start aptosd\u001b[0m"
+    echo -e "\u001b[32m check the logs:\u001b[0m \u001b[41;1mjournalctl -u aptosd -f -n 100\u001b[0m"
 }
+
+update () {
+    echo -e "Updating..." && sleep 2 
+    systemctl stop aptosd && sleep 2 
+    rm -rf /opt/aptos && mkdir /opt/aptos
+    rm -rf $HOME/aptos-node/data && mkdir $HOME/aptos-node/data
+    git checkout origin/devnet &>/dev/null
+    wget -q -P /opt/aptos https://devnet.aptoslabs.com/genesis.blob
+    wget -q -P /opt/aptos https://devnet.aptoslabs.com/waypoint.txt
+    systemctl restart aptosd
+    echo -e "\u001b[32mCheck the node status with this command:\u001b[0m \u001b[41;1curl 127.0.0.1:9101/metrics 2> /dev/null | grep "aptos_state_sync_version{type=\"synced\"}"\u001b[0m"
+}
+
 
 
 PS3="What do you want?: "
@@ -91,7 +104,7 @@ do
     Update)
     echo -e '\e[1;32mThe updating process begins...\e[0m'
     echo -e ''
-    echo -e '\e[1;32mSoon...'
+    update
     sleep 1
       break
       ;;
