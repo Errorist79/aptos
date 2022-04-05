@@ -29,16 +29,19 @@ binaries () {
 }
 
 generate () {
-    cd && mkdir aptos-node && cd aptos-node && mkdir data config && mkdir /opt/aptos
+    cd && mkdir aptos-node && cd aptos-node && mkdir data config
     wget -q -P $HOME/aptos-node/config https://raw.githubusercontent.com/Errorist79/aptos/main/public_full_node.yaml
-    wget -q -P /opt/aptos https://devnet.aptoslabs.com/genesis.blob
-    wget -q -P /opt/aptos https://devnet.aptoslabs.com/waypoint.txt
+    wget -q -P $HOME/aptos-node/config https://devnet.aptoslabs.com/genesis.blob
+    wget -q -P $HOME/aptos-node/config https://devnet.aptoslabs.com/waypoint.txt
     sleep 1s
     aptos-operational-tool generate-key --encoding hex --key-type x25519 --key-file ~/aptos-node/config/private-key.txt
     aptos-operational-tool extract-peer-from-file --encoding hex --key-file ~/aptos-node/config/private-key.txt --output-file ~/aptos-node/config/peer-info.yaml &>/dev/null
     PRIV=$(cat ~/aptos-node/config/private-key.txt)
     PEER=$(sed -n 2p ~/aptos-node/config/peer-info.yaml | sed 's/.$//')
     source $HOME/.profile
+    yamq e -i '.base.data_dir = "'$HOME/aptos-node/data'"' $HOME/aptos-node/config/public_full_node.yaml
+    yamq e -i '.execution.genesis_file_location = "'$HOME/aptos-node/config'"' $HOME/aptos-node/config/public_full_node.yaml
+    yamq e -i '.base.waypoint.from_file = "'$HOME/aptos-node/config'"' $HOME/aptos-node/config/public_full_node.yaml
     yamq e -i '.full_node_networks[] +=  { "identity": {"type": "from_config", "key": "'$PRIV'", "peer_id": "'$PEER'"} }' $HOME/aptos-node/config/public_full_node.yaml
 }
 
@@ -76,11 +79,10 @@ additional () {
 update () {
     echo -e "Updating..." && sleep 2 
     systemctl stop aptosd && sleep 2 
-    rm -rf /opt/aptos && mkdir /opt/aptos
     rm -rf $HOME/aptos-node/data && mkdir $HOME/aptos-node/data
     git checkout origin/devnet &>/dev/null
-    wget -q -P /opt/aptos https://devnet.aptoslabs.com/genesis.blob
-    wget -q -P /opt/aptos https://devnet.aptoslabs.com/waypoint.txt
+    wget -q -P $HOME/aptos-node/config https://devnet.aptoslabs.com/genesis.blob
+    wget -q -P $HOME/aptos-node/config https://devnet.aptoslabs.com/waypoint.txt
     systemctl restart aptosd
     echo -e "\u001b[32mCheck the node status with this command:\u001b[0m \u001b[41;1curl 127.0.0.1:9101/metrics 2> /dev/null | grep "aptos_state_sync_version{type=\"synced\"}"\u001b[0m"
 }
