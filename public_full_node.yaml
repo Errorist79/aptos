@@ -1,6 +1,6 @@
 base:
     # for persistence.
-    data_dir: "$HOME/aptos-node/data"
+    data_dir: "/root/aptos-node/data"
     role: "full_node"
     waypoint:
         # This is a checkpoint into the blockchain for added security.
